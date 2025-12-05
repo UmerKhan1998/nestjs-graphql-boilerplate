@@ -14,6 +14,7 @@ async function bootstrap() {
     origin: ['http://localhost:3000'], // your frontend URL
     credentials: true, // allow cookies
   });
+
   app.setGlobalPrefix('api');
   await app.listen(process.env.PORT || 3005);
 }
