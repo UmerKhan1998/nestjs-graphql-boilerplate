@@ -18,18 +18,18 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.DATABASE_URL),
+    ThrottlerModule.forRoot([{ ttl: 60, limit: 5 }]),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       context: ({ req, res }) => ({ req, res }),
     }),
-    ThrottlerModule.forRoot([{ ttl: 60, limit: 10 }]),
     UsersModule,
-    AuthModule,
+    // AuthModule,
     MyLoggerModule,
     DatabaseModule,
   ],
-  controllers: [AppController],
+  // controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: GqlThrottlerGuard },
