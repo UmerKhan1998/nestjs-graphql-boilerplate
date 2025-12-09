@@ -6,7 +6,7 @@ export class User {
   _id: string;
 
   @Field()
-  username: string;
+  username?: string;
 
   @Field()
   password: string;
@@ -15,7 +15,7 @@ export class User {
   email: string;
 
   @Field()
-  refreshToken: string;
+  refreshToken?: string;
 
   @Field()
   createdAt: Date;
