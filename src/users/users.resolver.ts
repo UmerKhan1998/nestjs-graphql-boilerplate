@@ -40,12 +40,8 @@ export class UsersResolver {
   ) {
     console.log(
       'Resolver refreshToken called with token:',
-      refreshToken,
-      context?.req?.headers?.cookie,
+      context?.req?.cookies?.refreshToken,
     );
-    return this.usersService.refreshToken(
-      refreshToken,
-      context?.req?.headers?.cookie,
-    );
+    return this.usersService.refreshToken(refreshToken, context?.req);
   }
 }

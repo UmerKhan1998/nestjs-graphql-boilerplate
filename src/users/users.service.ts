@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -97,9 +99,23 @@ export class UsersService {
     return newUser;
   }
 
-  async refreshToken(refreshToken: string, req: string) {
-    console.log('Service refreshToken called with token:', refreshToken, req);
-    // Implement your refresh token logic here
-    return { _id: 'dummyId', refreshToken };
+  async refreshToken(refreshToken: string, req) {
+    try {
+      console.log(
+        'Service refreshToken called with token:',
+        req?.cookies?.refreshToken,
+      );
+      // Implement your refresh token logic here
+      // return {
+      //   _id: 'dummyId',
+      //   refreshToken: req?.refreshToken || refreshToken,
+      // };
+    } catch (error) {
+      console.error('Refresh token error:', error);
+      throw new HttpException(
+        { success: false, message: 'Invalid or expired refresh token' },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
   }
 }
