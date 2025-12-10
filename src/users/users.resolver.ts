@@ -38,10 +38,6 @@ export class UsersResolver {
     @Args('refreshToken', { type: () => String }) refreshToken: string,
     @Context() context,
   ) {
-    console.log(
-      'Resolver refreshToken called with token:',
-      context?.req?.cookies?.refreshToken,
-    );
     return this.usersService.refreshToken(refreshToken, context?.req);
   }
 }

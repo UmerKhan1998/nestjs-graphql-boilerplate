@@ -106,10 +106,10 @@ export class UsersService {
         req?.cookies?.refreshToken,
       );
       // Implement your refresh token logic here
-      // return {
-      //   _id: 'dummyId',
-      //   refreshToken: req?.refreshToken || refreshToken,
-      // };
+      return {
+        _id: 'dummyId',
+        refreshToken: req?.cookies?.refreshToken || refreshToken,
+      };
     } catch (error) {
       console.error('Refresh token error:', error);
       throw new HttpException(
