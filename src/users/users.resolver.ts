@@ -4,10 +4,16 @@ import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Res } from '@nestjs/common';
+import { RefreshToken } from './entities/refresh-token.entity';
 
-@Resolver(() => User)
+@Resolver()
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
+
+  @Query(() => String)
+  hello() {
+    return 'Hello GraphQL';
+  }
 
   @Mutation(() => User)
   register(
@@ -27,23 +33,19 @@ export class UsersResolver {
     return this.usersService.login(createUserInput, context.res);
   }
 
-  // @Query(() => [User], { name: 'users' })
-  // findAll() {
-  //   return this.usersService.findAll();
-  // }
-
-  @Query(() => User, { name: 'user' })
-  findOne(@Args('id') id: string) {
-    return this.usersService.findOne(id);
-  }
-
-  @Mutation(() => User)
-  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.usersService.update(updateUserInput.id, updateUserInput);
-  }
-
-  @Mutation(() => User)
-  removeUser(@Args('id') id: string) {
-    return this.usersService.remove(id);
+  @Mutation(() => RefreshToken)
+  refreshToken(
+    @Args('refreshToken', { type: () => String }) refreshToken: string,
+    @Context() context,
+  ) {
+    console.log(
+      'Resolver refreshToken called with token:',
+      refreshToken,
+      context?.req?.headers?.cookie,
+    );
+    return this.usersService.refreshToken(
+      refreshToken,
+      context?.req?.headers?.cookie,
+    );
   }
 }

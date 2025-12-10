@@ -97,31 +97,9 @@ export class UsersService {
     return newUser;
   }
 
-  async findOne(id: string): Promise<UserModel> {
-    const user = await this.userModel.findById(id);
-    if (!user) throw new NotFoundException('User not found');
-    return user;
-  }
-
-  async update(
-    id: string,
-    updateUserInput: UpdateUserInput,
-  ): Promise<UserModel> {
-    const updated = await this.userModel.findByIdAndUpdate(
-      id,
-      updateUserInput,
-      {
-        new: true,
-      },
-    );
-
-    if (!updated) throw new NotFoundException('User not found');
-    return updated;
-  }
-
-  async remove(id: string): Promise<UserModel> {
-    const deleted = await this.userModel.findByIdAndDelete(id);
-    if (!deleted) throw new NotFoundException('User not found');
-    return deleted;
+  async refreshToken(refreshToken: string, req: string) {
+    console.log('Service refreshToken called with token:', refreshToken, req);
+    // Implement your refresh token logic here
+    return { _id: 'dummyId', refreshToken };
   }
 }

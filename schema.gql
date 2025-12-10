@@ -17,15 +17,19 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type RefreshToken {
+  _id: ID!
+  refreshToken: String!
+}
+
 type Query {
-  user(id: String!): User!
+  hello: String!
 }
 
 type Mutation {
   register(createUserInput: CreateUserInput!): User!
   login(createUserInput: CreateUserInput!): User!
-  updateUser(updateUserInput: UpdateUserInput!): User!
-  removeUser(id: String!): User!
+  refreshToken(refreshToken: String!): RefreshToken!
 }
 
 input CreateUserInput {
@@ -33,12 +37,4 @@ input CreateUserInput {
   password: String!
   email: String!
   refreshToken: String
-}
-
-input UpdateUserInput {
-  username: String
-  password: String
-  email: String
-  refreshToken: String
-  id: String!
 }
