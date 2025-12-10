@@ -24,6 +24,7 @@ type RefreshToken {
 
 type Query {
   hello: String!
+  profile: User!
 }
 
 type Mutation {

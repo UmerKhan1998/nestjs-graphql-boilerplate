@@ -21,6 +21,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
     ThrottlerModule.forRoot([{ ttl: 60, limit: 5 }]),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      playground: true, // 👈 enable this
       autoSchemaFile: 'schema.gql',
       context: ({ req, res }) => ({ req, res }),
     }),

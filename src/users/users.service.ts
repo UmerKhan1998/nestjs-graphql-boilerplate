@@ -153,4 +153,30 @@ export class UsersService {
       );
     }
   }
+
+  async profile(context) {
+    try {
+      const req = context.req;
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+      console.log('Profile called with token:', token);
+
+      if (!token) throw new UnauthorizedException('No token provided');
+
+      const decoded: any = jwt.verify(
+        token,
+        process.env.JWT_ACCESS_SECRET || 'fallback-access-secret',
+      );
+
+      const user = await this.userModel
+        .findById(decoded.id)
+        .select('-password -refreshToken');
+
+      if (!user) throw new NotFoundException('User not found');
+
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
 }
