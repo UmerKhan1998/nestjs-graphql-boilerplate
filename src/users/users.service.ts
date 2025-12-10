@@ -13,6 +13,7 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { User as UserModel } from './schemas/user.schema';
 import { validatePassword } from 'utils/password.validator';
+import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { generateTokens } from 'utils/token';
 
@@ -101,14 +102,48 @@ export class UsersService {
 
   async refreshToken(refreshToken: string, req) {
     try {
-      console.log(
-        'Service refreshToken called with token:',
-        req?.cookies?.refreshToken,
+      const refreshToken = req.cookies?.refreshToken;
+
+      if (!refreshToken) {
+        throw new HttpException(
+          {
+            success: false,
+            message: 'No refresh token or invalid refresh token provided',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      const decoded: any = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
       );
+
+      const user = await this.userModel.findById(decoded.user?.id);
+
+      // Rotate tokens
+      const { accessToken, refreshToken: newRefreshToken } = generateTokens({
+        id: user?._id?.toString(),
+        username: user?.username,
+        email: user?.email,
+      });
+
+      await this.userModel.findByIdAndUpdate(user?._id, {
+        refreshToken: newRefreshToken,
+      });
+
+      // ✅ Use cookie-parser globally, Nest will handle response
+      req.res?.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
       // Implement your refresh token logic here
       return {
         _id: 'dummyId',
-        refreshToken: req?.cookies?.refreshToken || refreshToken,
+        refreshToken: newRefreshToken,
       };
     } catch (error) {
       console.error('Refresh token error:', error);
