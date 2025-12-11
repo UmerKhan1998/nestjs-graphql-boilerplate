@@ -16,6 +16,8 @@ import { validatePassword } from 'utils/password.validator';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { generateTokens } from 'utils/token';
+import { addToBlacklist } from 'utils/tokenBlacklist';
+import { LogoutResponse } from './entities/logout.entity';
 
 @Injectable()
 export class UsersService {
@@ -98,6 +100,50 @@ export class UsersService {
     });
 
     return newUser;
+  }
+
+  async logout(req, res): Promise<LogoutResponse> {
+    try {
+      const authHeader = req.headers['authorization'];
+      const token = authHeader?.split(' ')[1];
+
+      if (!token) {
+        return {
+          success: false,
+          message: 'No token provided',
+        };
+      }
+
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET,
+      ) as jwt.JwtPayload;
+
+      console.log('Decoded token for logout:', decoded);
+
+      // Blacklist jti
+      if (decoded?.jti) {
+        addToBlacklist(decoded.jti);
+      }
+
+      // Clear refresh token cookie (allowed)
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      return {
+        success: true,
+        message: 'Logout successful. Token has been blacklisted.',
+      };
+    } catch (error) {
+      // Don't send res.json() here
+      return {
+        success: false,
+        message: 'Invalid or expired token',
+      };
+    }
   }
 
   async refreshToken(refreshToken: string, req) {

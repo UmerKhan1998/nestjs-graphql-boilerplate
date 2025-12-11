@@ -6,6 +6,7 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { Res, UseGuards } from '@nestjs/common';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LogoutResponse } from './entities/logout.entity';
 
 @Resolver()
 export class UsersResolver {
@@ -40,6 +41,11 @@ export class UsersResolver {
     @Context() context,
   ) {
     return this.usersService.refreshToken(refreshToken, context?.req);
+  }
+
+  @Mutation(() => LogoutResponse)
+  logout(@Context() context) {
+    return this.usersService.logout(context.req, context.res);
   }
 
   @Query(() => User)
