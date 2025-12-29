@@ -18,7 +18,7 @@ export const generateTokens = (user: any): GeneratedTokens => {
     { user } as TokenPayload,
     process.env.JWT_SECRET || 'fallback-secret',
     {
-      expiresIn: '5s',
+      expiresIn: '10s',
       jwtid: jti, // use the same jti
     },
   );
@@ -26,7 +26,10 @@ export const generateTokens = (user: any): GeneratedTokens => {
   const refreshToken = jwt.sign(
     { user } as TokenPayload,
     process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
-    { expiresIn: '7d' },
+    {
+      expiresIn: '7d',
+      jwtid: jti, // align refresh token with access token for blacklist checks
+    },
   );
 
   return { accessToken, refreshToken, jti };

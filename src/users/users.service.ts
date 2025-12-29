@@ -16,7 +16,7 @@ import { validatePassword } from 'utils/password.validator';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { generateTokens } from 'utils/token';
-import { addToBlacklist } from 'utils/tokenBlacklist';
+import { addToBlacklist, isBlacklisted } from 'utils/tokenBlacklist';
 import { LogoutResponse } from './entities/logout.entity';
 
 @Injectable()
@@ -124,8 +124,8 @@ export class UsersService {
       console.log('Decoded token for logout:', decoded);
 
       // ✅ Add token jti to blacklist
-      if (decoded?.user?.id) {
-        addToBlacklist(decoded.user.id);
+      if (decoded?.jti) {
+        addToBlacklist(decoded.jti);
       } else {
         throw new UnauthorizedException('Invalid token payload');
       }
@@ -168,6 +168,11 @@ export class UsersService {
         refreshToken,
         process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
       );
+
+      // Prevent reuse of a blacklisted token (logged out sessions)
+      if (decoded?.jti && isBlacklisted(decoded.jti)) {
+        throw new UnauthorizedException('Token has been blacklisted');
+      }
 
       const user = await this.userModel.findById(decoded.user?.id);
 

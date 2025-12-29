@@ -128,6 +128,13 @@ export class AuthService {
         process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
       );
 
+      if (decoded?.jti && isBlacklisted(decoded.jti)) {
+        throw new HttpException(
+          { success: false, message: 'Token has been blacklisted' },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
       const user = await this.userModel.findById(decoded.user?.id);
 
       // Rotate tokens
@@ -178,8 +185,8 @@ export class AuthService {
       ) as jwt.JwtPayload;
 
       // ✅ Add token jti to blacklist
-      if (decoded?.user?.id) {
-        addToBlacklist(decoded.user.id);
+      if (decoded?.jti) {
+        addToBlacklist(decoded.jti);
       } else {
         throw new UnauthorizedException('Invalid token payload');
       }
