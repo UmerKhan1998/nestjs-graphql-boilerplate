@@ -18,7 +18,7 @@ export const generateTokens = (user: any): GeneratedTokens => {
     { user } as TokenPayload,
     process.env.JWT_SECRET || 'fallback-secret',
     {
-      expiresIn: '15m',
+      expiresIn: '5s',
       jwtid: jti, // use the same jti
     },
   );

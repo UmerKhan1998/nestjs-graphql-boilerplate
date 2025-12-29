@@ -104,7 +104,7 @@ export class UsersService {
 
   // async logout(token: string): Promise<LogoutResponse> {
   async logout(token: string, res) {
-    console.log('res101:', res);
+    // console.log('res101:', res);
     try {
       // const authHeader = req.headers['authorization'];
       // const token = authHeader?.split(' ')[1];
@@ -123,9 +123,11 @@ export class UsersService {
 
       console.log('Decoded token for logout:', decoded);
 
-      // Blacklist jti
-      if (decoded?.jti) {
-        addToBlacklist(decoded.jti);
+      // ✅ Add token jti to blacklist
+      if (decoded?.user?.id) {
+        addToBlacklist(decoded.user.id);
+      } else {
+        throw new UnauthorizedException('Invalid token payload');
       }
 
       // Clear refresh token cookie (allowed)

@@ -178,8 +178,8 @@ export class AuthService {
       ) as jwt.JwtPayload;
 
       // ✅ Add token jti to blacklist
-      if (decoded?.jti) {
-        addToBlacklist(decoded.jti);
+      if (decoded?.user?.id) {
+        addToBlacklist(decoded.user.id);
       } else {
         throw new UnauthorizedException('Invalid token payload');
       }
