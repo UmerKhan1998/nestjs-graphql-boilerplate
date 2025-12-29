@@ -102,10 +102,12 @@ export class UsersService {
     return newUser;
   }
 
-  async logout(req, res): Promise<LogoutResponse> {
+  // async logout(token: string): Promise<LogoutResponse> {
+  async logout(token: string, res) {
+    console.log('res101:', res);
     try {
-      const authHeader = req.headers['authorization'];
-      const token = authHeader?.split(' ')[1];
+      // const authHeader = req.headers['authorization'];
+      // const token = authHeader?.split(' ')[1];
 
       if (!token) {
         return {
@@ -116,7 +118,7 @@ export class UsersService {
 
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET,
+        process.env.JWT_REFRESH_SECRET,
       ) as jwt.JwtPayload;
 
       console.log('Decoded token for logout:', decoded);
@@ -200,28 +202,25 @@ export class UsersService {
     }
   }
 
-  async profile(context) {
+  async profile(token: string) {
     try {
-      const req = context.req;
-      const authHeader = req.headers['authorization'];
-      const token = authHeader && authHeader.split(' ')[1];
-      console.log('Profile called with token:', token);
-
       if (!token) throw new UnauthorizedException('No token provided');
 
+      // verify using refresh secret
       const decoded: any = jwt.verify(
         token,
-        process.env.JWT_ACCESS_SECRET || 'fallback-access-secret',
+        process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
       );
 
       const user = await this.userModel
-        .findById(decoded.id)
+        .findById(decoded?.user?.id)
         .select('-password -refreshToken');
 
       if (!user) throw new NotFoundException('User not found');
 
       return user;
     } catch (error) {
+      console.log('JWT verify error:', error);
       throw new UnauthorizedException('Invalid or expired token');
     }
   }

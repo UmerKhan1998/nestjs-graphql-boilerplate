@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { Res, UseGuards } from '@nestjs/common';
+import { Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LogoutResponse } from './entities/logout.entity';
@@ -45,18 +45,17 @@ export class UsersResolver {
 
   @Mutation(() => LogoutResponse)
   logout(@Context() context) {
-    return this.usersService.logout(context.req, context.res);
+    const token = context?.res?.req?.cookies?.refreshToken;
+    console.log('Logout token:', token);
+
+    return this.usersService.logout(token, context.res);
   }
 
   @Query(() => User)
   profile(@Context() context) {
-    console.log(context);
+    const token = context?.res?.req?.cookies?.refreshToken;
 
-    return {
-      _id: '123',
-      username: 'john',
-      email: 'john@example.com',
-    };
+    return this.usersService.profile(token);
   }
 
   // @Query(() => User)
